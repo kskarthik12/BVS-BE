@@ -5,10 +5,14 @@ import AdminGuard from '../middleware/AdminGuard.js';
 const router =express.Router();
 
 router.get('/',AdminGuard,UserController.getAllUsers)
+router.get('/candidate',UserController.CandidateName)
 router.post( '/signup',UserController.signUp)
 router.post( "/login",UserController.login)
 router.post('/forgot-password',UserController.forgotPassword);
 router.put('/reset-password/:token', UserController.resetPassword);
+
+router.post('/candidateid',UserController.CandidateId);
+
 
 
 export default router

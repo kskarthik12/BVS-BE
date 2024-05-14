@@ -1,4 +1,5 @@
 import UserModel from '../models/user.js'; 
+import CandidateModel from '../models/candidate.js';
 import Auth from '../utils/auth.js';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken'; 
@@ -138,10 +139,33 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const CandidateName=async(req,res)=>{
+    const district = req.params.district;
+    try {
+        const candidates = await CandidateModel.find({ district });
+        res.json(candidates);
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch candidates', error: error.message });
+    }
+};
+
+const CandidateId=async (req, res) => {
+    const candidateId = req.params.candidateId;
+    try {
+        // Call vote function on the contract
+        const accounts = await web3.eth.getAccounts();
+        const response = await contract.methods.vote(candidateId).send({ from: accounts[0] });
+        res.json({ success: true, message: 'Vote submitted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to submit vote', error: error.message });
+    }
+};
 export default {
     signUp,
     login,
     getAllUsers,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    CandidateName,
+    CandidateId
 };

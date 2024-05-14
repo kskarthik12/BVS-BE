@@ -5,6 +5,7 @@ contract Voting {
     struct Candidate {
         uint id;
         string name;
+        string district; // Added district field
         uint voteCount;
     }
 
@@ -16,8 +17,7 @@ contract Voting {
     address public owner; // Address of the contract owner
 
     event Voted(uint indexed candidateId);
-    event CandidateAdded(uint indexed candidateId, string name);
-    event CandidateVoteCount(uint indexed candidateId, uint voteCount);
+    event CandidateAdded(uint indexed candidateId, string name, string district); // Include district in event
 
     constructor() {
         owner = msg.sender; // Set the contract deployer as the owner
@@ -28,10 +28,10 @@ contract Voting {
         _;
     }
 
-    function addCandidate(string memory _name) public onlyOwner {
+    function addCandidate(string memory _name, string memory _district) public onlyOwner {
         candidatesCount++;
-        candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
-        emit CandidateAdded(candidatesCount, _name);
+        candidates[candidatesCount] = Candidate(candidatesCount, _name, _district, 0);
+        emit CandidateAdded(candidatesCount, _name, _district);
     }
 
     function vote(uint _candidateId) public {
@@ -41,16 +41,5 @@ contract Voting {
         candidates[_candidateId].voteCount++;
         hasVoted[msg.sender] = true;
         emit Voted(_candidateId);
-        emitCandidateVoteCount(_candidateId);
-    }
-
-    function getCandidateVoteCount(uint _candidateId) public view returns (uint) {
-        require(_candidateId > 0 && _candidateId <= candidatesCount, "Invalid candidate ID");
-        return candidates[_candidateId].voteCount;
-    }
-
-    function emitCandidateVoteCount(uint _candidateId) internal {
-        uint voteCount = candidates[_candidateId].voteCount;
-        emit CandidateVoteCount(_candidateId, voteCount);
     }
 }
