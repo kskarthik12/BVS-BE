@@ -4,6 +4,8 @@ import Auth from '../utils/auth.js';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken'; 
 import bcrypt from 'bcryptjs'
+import web3 from 'web3'
+import eth from 'ethers'
 
 const signUp = async (req, res) => {    
     try {
@@ -143,11 +145,19 @@ const CandidateName=async(req,res)=>{
     const district = req.params.district;
     try {
         const candidates = await CandidateModel.find({ district });
-        res.json(candidates);
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to fetch candidates', error: error.message });
-    }
-};
+        
+        if(candidates) {
+            res.status(200).json({ success: true, candidates });
+          } else {
+            
+            res.status(404).json({ success: false, message: 'No candidates found for the district' });
+          }
+        } catch (error) {
+          
+          console.error(error);
+          res.status(500).json({ success: false, message: 'Failed to fetch candidates', error: error.message });
+        }
+      };
 
 const CandidateId=async (req, res) => {
     const candidateId = req.params.candidateId;

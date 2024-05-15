@@ -10,7 +10,11 @@ let CandidateSchema = new mongoose.Schema({
         type:String,
         required:[true,"Candidate Name is required"]
     },
-    District:{
+    party:{
+        type:String,
+        required:[true,"Party Name is required"]
+    },
+    district:{
         type:String,
         required:[true,"District name is required"]
     }
