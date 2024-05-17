@@ -4,8 +4,9 @@ import Auth from '../utils/auth.js';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken'; 
 import bcrypt from 'bcryptjs'
-import web3 from 'web3'
-import eth from 'ethers'
+
+
+
 
 const signUp = async (req, res) => {    
     try {
@@ -141,41 +142,14 @@ const resetPassword = async (req, res) => {
     }
 };
 
-const CandidateName=async(req,res)=>{
-    const district = req.params.district;
-    try {
-        const candidates = await CandidateModel.find({ district });
-        
-        if(candidates) {
-            res.status(200).json({ success: true, candidates });
-          } else {
-            
-            res.status(404).json({ success: false, message: 'No candidates found for the district' });
-          }
-        } catch (error) {
-          
-          console.error(error);
-          res.status(500).json({ success: false, message: 'Failed to fetch candidates', error: error.message });
-        }
-      };
 
-const CandidateId=async (req, res) => {
-    const candidateId = req.params.candidateId;
-    try {
-        // Call vote function on the contract
-        const accounts = await web3.eth.getAccounts();
-        const response = await contract.methods.vote(candidateId).send({ from: accounts[0] });
-        res.json({ success: true, message: 'Vote submitted successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to submit vote', error: error.message });
-    }
-};
+
+
 export default {
     signUp,
     login,
     getAllUsers,
     forgotPassword,
     resetPassword,
-    CandidateName,
-    CandidateId
+    
 };

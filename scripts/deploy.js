@@ -1,11 +1,9 @@
 import hre from 'hardhat'
 async function main() {
   const Voting = await hre.ethers.getContractFactory("Voting");
-  const voting = await Voting.deploy();
+  const contract = await Voting.deploy();
 
-  await voting.deployed();
-
-  console.log("Voting contract deployed to:", voting.address);
+  console.log("Voting contract deployed to:", contract.address);
 }
 
 main()

@@ -1,8 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import Web3 from 'web3'
-import ethers from 'ethers'
 import AppRoutes from './src/routes/index.js'
 dotenv.config()
 
