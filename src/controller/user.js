@@ -3,8 +3,7 @@ import CandidateModel from '../models/candidate.js';
 import Auth from '../utils/auth.js';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken'; 
-import bcrypt from 'bcryptjs'
-
+import bcrypt from 'bcryptjs';
 
 
 
@@ -38,7 +37,9 @@ const login = async (req, res) => {
                 let token = await Auth.createToken({
                     Voter_id: user.Voter_id,
                     id: user._id,
-                    role: user.role
+                    role: user.role,
+                    District:user.District,
+                    Etherium_Address:user.Etherium_Address
                 });
                 return res.status(200).send({
                     message: "Login Successful",
@@ -46,6 +47,8 @@ const login = async (req, res) => {
                         Voter_id: user.Voter_id,
                         id: user._id,
                         role: user.role,
+                        District:user.District,
+                        Etherium_Address:user.Etherium_Address
                     },
                     token
                 });
@@ -141,7 +144,6 @@ const resetPassword = async (req, res) => {
         return res.status(500).json({ status: 500, msg: "An error occurred while resetting the password." });
     }
 };
-
 
 
 

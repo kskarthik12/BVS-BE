@@ -17,6 +17,10 @@ let CandidateSchema = new mongoose.Schema({
     district:{
         type:String,
         required:[true,"District name is required"]
+    },
+    img_url:{
+        type:String,
+        
     }
 },{
     collection:'candidate',

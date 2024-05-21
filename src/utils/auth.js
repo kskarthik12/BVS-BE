@@ -22,9 +22,12 @@ let decodeToken = async(token)=>{
     return await jwt.decode(token)
 }
 
+
+
 export default {
     hashPassword,
     hashCompare,
     createToken,
-    decodeToken
+    decodeToken,
+    
 }
