@@ -6,15 +6,17 @@ import AdminGuard from '../middleware/AdminGuard.js';
 const router =express.Router();
 
 
-router.get('/',AdminGuard,UserController.getAllUsers)
-router.get('/candidate',CandidateController.CandidateName)
+router.get('/',AdminGuard,Validate,UserController.getAllUsers)
+router.get('/candidate',Validate,CandidateController.CandidateName)
+router.get('/getallcandidate',Validate,CandidateController.getAllcandidates)
 router.post( '/signup',UserController.signUp)
 router.post( "/login",UserController.login)
 router.post('/forgot-password',UserController.forgotPassword);
 router.put('/reset-password/:token', UserController.resetPassword);
+router.put('/update-vote',Validate,UserController.updateVoteStatus)
 
-router.post('/vote/candidateId',CandidateController.candidateId);
-router.post('/addCandidate',CandidateController.addCandidate);
-router.get('/voteStatus',CandidateController.getCandidateDetails);
+// router.post('/vote/candidateId',CandidateController.candidateId);
+router.post('/addCandidate',AdminGuard,Validate,CandidateController.addCandidate);
+router.get('/voteStatus',Validate,CandidateController.getCandidateDetails);
 
 export default router

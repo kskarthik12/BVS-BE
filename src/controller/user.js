@@ -145,6 +145,35 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const updateVoteStatus = async (req, res) => {
+    const { Voter_id } = req.body;
+    
+    try {
+        const user = await UserModel.findOneAndUpdate(
+            { Voter_id: Voter_id },
+            { voting_state: true },
+            { new: true } // Return the updated document
+        );
+
+        if (!user) {
+            return res.status(404).send({
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).send({
+            message: "Vote status updated successfully",
+            user
+        });
+    } catch (error) {
+        console.error('Error in updating vote status:', error);
+        return res.status(500).send({
+            message: error.message || "Internal Server Error"
+        });
+    }
+};
+
+
 
 
 export default {
@@ -153,5 +182,6 @@ export default {
     getAllUsers,
     forgotPassword,
     resetPassword,
+    updateVoteStatus
     
 };

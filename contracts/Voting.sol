@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract Voting {
     struct Candidate {
         string district;
+        string candidateName;
         uint256 candidateId;
         uint256 voteCount;
     }
@@ -32,22 +33,23 @@ contract Voting {
     // Function to add initial candidates, only accessible by the owner
     function addInitialCandidates() private onlyOwner {
         
-        candidates.push(Candidate("Thoothukkudi", 1, 0));
-        candidates.push(Candidate("Thoothukkudi", 2, 0));
-        candidates.push(Candidate("Thoothukkudi", 3, 0));
-        candidates.push(Candidate("Thoothukkudi", 4, 0));
-        candidates.push(Candidate("Tirunelveli", 5, 0));
-        candidates.push(Candidate("Tirunelveli", 6, 0));
-        candidates.push(Candidate("Tirunelveli", 7, 0));
-        candidates.push(Candidate("Tirunelveli", 8, 0));
+        candidates.push(Candidate("Thoothukkudi","Manikkaraj A", 1, 0));
+        candidates.push(Candidate("Thoothukkudi","Sivasamy Velumani", 2, 0));
+        candidates.push(Candidate("Thoothukkudi","Kanimozhi", 3, 0));
+        candidates.push(Candidate("Thoothukkudi","Vijayaseelan S.D.R", 4, 0));
+        candidates.push(Candidate("Tirunelveli","Balasubramanian", 5, 0));
+        candidates.push(Candidate("Tirunelveli","Jansi Rani M", 6, 0));
+        candidates.push(Candidate("Tirunelveli","Nainar Nagenthran", 7, 0));
+        candidates.push(Candidate("Tirunelveli","Athisayam V", 8, 0));
         
     }
 
     // Function to add a candidate, only accessible by the owner
-    function addCandidate(uint256 _candidateId, string memory _district) public onlyOwner {
+    function addCandidate(uint256 _candidateId, string memory _district, string memory _candidateName) public onlyOwner {
         candidates.push(Candidate({
             district: _district,
             candidateId: _candidateId,
+            candidateName:_candidateName,
             voteCount: 0 // Initialize vote count to 0
         }));
     }

@@ -7,7 +7,7 @@ import UserModel from '../models/user.js';
 const contractABI = JSON.parse(fs.readFileSync('/home/karthik/BVS/BVS-BE/artifacts/contracts/Voting.sol/Voting.json', 'utf-8')).abi;
 const provider = new ethers.providers.JsonRpcProvider(process.env.API_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-const contractAddress = '0x2ABc162a8F4fc871ccF1C03020Eb57C4DF04651d';
+const contractAddress = '0x5BAAE64AbBa44Eae32A64FC653E4BAc1B73E84B4';
 const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
 // Function to fetch gas details
@@ -20,11 +20,10 @@ const getGasDetails = async () => {
 
 // Add Candidate
 const addCandidate = async (req, res) => {
-  const candidateId = 25;
-  const district = "Thoothukkudi";
+  const { candidateId, district,candidateName } = req.body;
 
   try {
-    const tx = await contract.populateTransaction.addCandidate(candidateId, district);
+    const tx = await contract.populateTransaction.addCandidate(candidateId, district,candidateName);
     const { maxFeePerGas, maxPriorityFeePerGas } = await getGasDetails();
 
     console.log("Transaction data:", tx);
@@ -103,22 +102,39 @@ const getCandidateDetails = async (req, res) => {
 
     const candidates = await contract.getAllVotesOfCandidates();
      
-     candidates.forEach(candidate => {
-      console.log(`District: ${candidate.district}`);
-      console.log(`Candidate ID: ${candidate.candidateId.toString()}`);
-      console.log(`Vote Count: ${candidate.voteCount.toString()}`);
-      
-    });
-    res.status(200).send({ message: 'Vote Status fetched Successfully',candidates});
+    const convertedCandidates = candidates.map(candidate => ({
+      district: candidate.district,
+      candidateName:candidate.candidateName,
+      candidateId: candidate.candidateId.toString(),
+      voteCount: candidate.voteCount.toString(),
+    }));
+    console.log(convertedCandidates);
+    res.status(200).send({ message: 'Vote Status fetched Successfully',convertedCandidates});
     
   } catch (error) {
     console.error('Error fetching candidate details:', error);
   }
 };
 
+const getAllcandidates = async (req, res) => {
+  try {
+      let candidate = await CandidateModel.find();
+      return res.status(200).send({
+          message: "Data Fetch Successful",
+          candidate   
+      });
+  } catch (error) {
+      console.error('Error in getting all users:', error);
+      return res.status(500).send({
+          message: error.message || "Internal Server Error"
+      });
+  }
+};
+
 export default {
   CandidateName,
-  candidateId,
+  // candidateId,
   addCandidate,
-  getCandidateDetails
+  getCandidateDetails,
+  getAllcandidates
 };
