@@ -108,7 +108,7 @@ const forgotPassword = async (req, res) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password Reset',
-            html: `<p>Please click <a href="http://localhost:5173/reset-password/${token}">here</a> to reset your password.</p>`
+            html: `<p>Please click <a href="https://indian-election.netlify.app/reset-password/${token}">here</a> to reset your password.</p>`
         };
 
         await transporter.sendMail(mailOptions);

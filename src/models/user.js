@@ -6,6 +6,16 @@ const validateEmail = (email) => {
     );
   };
 
+  const ethereumAddressValidator = {
+    validator: function(v) {
+      // Regular expression to match an Ethereum address
+      return /^0x[a-fA-F0-9]{40}$/.test(v);
+    },
+    message: props => `${props.value} is not a valid Ethereum address!`
+  };
+
+
+
 //create schema
 let userSchema = new mongoose.Schema({
     Voter_id:{
@@ -21,7 +31,8 @@ let userSchema = new mongoose.Schema({
     },
     Etherium_Address:{
         type:String,
-        required:[true,"Etherium_Wallet_Address is required"]
+        required:[true,"Etherium_Wallet_Address is required"],
+        validate: ethereumAddressValidator
     },
     District:{
         type:String,
