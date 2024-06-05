@@ -15,7 +15,7 @@ router.post('/forgot-password',UserController.forgotPassword);
 router.put('/reset-password/:token', UserController.resetPassword);
 router.put('/update-vote',Validate,UserController.updateVoteStatus)
 
-// router.post('/vote/candidateId',CandidateController.candidateId);
+router.post('/addvote',CandidateController.addVote);
 router.post('/addCandidate',AdminGuard,Validate,CandidateController.addCandidate);
 router.get('/voteStatus',Validate,CandidateController.getCandidateDetails);
 

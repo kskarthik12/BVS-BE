@@ -6,13 +6,13 @@ const validateEmail = (email) => {
     );
   };
 
-  const ethereumAddressValidator = {
-    validator: function(v) {
-      // Regular expression to match an Ethereum address
-      return /^0x[a-fA-F0-9]{40}$/.test(v);
-    },
-    message: props => `${props.value} is not a valid Ethereum address!`
-  };
+//   const ethereumAddressValidator = {
+//     validator: function(v) {
+//       // Regular expression to match an Ethereum address
+//       return /^0x[a-fA-F0-9]{40}$/.test(v);
+//     },
+//     message: props => `${props.value} is not a valid Ethereum address!`
+//   };
 
 
 
@@ -31,8 +31,12 @@ let userSchema = new mongoose.Schema({
     },
     Etherium_Address:{
         type:String,
-        required:[true,"Etherium_Wallet_Address is required"],
-        validate: ethereumAddressValidator
+        required: true
+        
+    },
+    PRIVATE_KEY:{
+        type:String,
+        required: true
     },
     District:{
         type:String,

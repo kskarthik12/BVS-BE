@@ -11,6 +11,16 @@ let hashCompare = async(password,hash)=>{
     return await bcrypt.compare(password,hash)
 }
 
+let hashKey=async(privateKey)=>{
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(privateKey,salt)
+    return hash
+}
+
+let keyCompare = async(privateKey,hash)=>{
+    return await bcrypt.compare(privateKey,hash)
+}
+
 let createToken = async(payload)=>{
     let token = await jwt.sign(payload,process.env.JWT_SECRET,{
         expiresIn:process.env.JWT_EXPIRE
@@ -29,5 +39,7 @@ export default {
     hashCompare,
     createToken,
     decodeToken,
+    hashKey,
+    keyCompare
     
 }

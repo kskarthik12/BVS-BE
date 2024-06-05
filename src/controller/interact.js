@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
-import fs from 'fs';
 import CandidateModel from '../models/candidate.js';
 import UserModel from '../models/user.js';
+import Auth from '../utils/auth.js';
+
+
 
 
 const contractABI = [
@@ -174,23 +176,25 @@ const contractABI = [
 ]
 const provider = new ethers.providers.JsonRpcProvider(process.env.API_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-const contractAddress = '0x5BAAE64AbBa44Eae32A64FC653E4BAc1B73E84B4';
+const contractAddress = '0x71Bfc98bd6a484A51b8d8a9Af033899280efF199';
 const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
 // Function to fetch gas details
 const getGasDetails = async () => {
   const feeData = await provider.getFeeData();
-  const maxPriorityFeePerGas = ethers.utils.parseUnits('2', 'gwei'); // Reasonable priority fee (2 gwei)
-  const maxFeePerGas = feeData.maxFeePerGas || feeData.gasPrice.add(maxPriorityFeePerGas);
-  return { maxFeePerGas, maxPriorityFeePerGas };
-};
 
+  const maxPriorityFeePerGas = ethers.utils.parseUnits('150', 'gwei');
+
+  const maxFeePerGas = feeData.maxFeePerGas ? feeData.maxFeePerGas.add(maxPriorityFeePerGas) : feeData.gasPrice.add(maxPriorityFeePerGas);
+  return { maxFeePerGas, maxPriorityFeePerGas };
+}
 // Add Candidate
 const addCandidate = async (req, res) => {
-  const { candidateId, district,candidateName } = req.body;
+  const { candidateId, district, candidateName } = req.body;
+
 
   try {
-    const tx = await contract.populateTransaction.addCandidate(candidateId, district,candidateName);
+    const tx = await contract.populateTransaction.addCandidate(candidateId, district, candidateName);
     const { maxFeePerGas, maxPriorityFeePerGas } = await getGasDetails();
 
     console.log("Transaction data:", tx);
@@ -209,7 +213,7 @@ const addCandidate = async (req, res) => {
     const receipt = await txResponse.wait();
     console.log("Transaction receipt:", receipt);
 
-    res.status(200).json({ success: true, message:"Candidate added successfully",transactionHash: receipt.transactionHash });
+    res.status(200).json({ success: true, message: "Candidate added successfully", transactionHash: receipt.transactionHash });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ success: false, message: 'Failed to add candidate', error: error.message });
@@ -233,51 +237,68 @@ const CandidateName = async (req, res) => {
 };
 
 // Vote for a Candidate
-// const candidateId = async (req, res) => {
-//   try {
-//     const candidateId = 18;
-//     const district = "Thoothukkudi";
-//     const tx = await contract.populateTransaction.vote(candidateId, district);
-//     const { maxFeePerGas, maxPriorityFeePerGas } = await getGasDetails();
+const addVote = async (req, res) => {
+  const { candidateId, district, PRIVATE_KEY, Voter_id } = req.body;
 
-//     console.log("Transaction data:", tx);
-//     console.log("Gas details:", { maxFeePerGas, maxPriorityFeePerGas });
+  try {
+    // Validate the provided private key
+    let user = await UserModel.findOne({ Voter_id: Voter_id });
+    if (!user || !(await Auth.keyCompare(PRIVATE_KEY, user.PRIVATE_KEY))) {
+      return res.status(402).send("Incorrect private key");
+    }
 
-//     const txResponse = await wallet.sendTransaction({
-//       ...tx,
-//       gasLimit: ethers.utils.hexlify(500000),
-//       maxFeePerGas,
-//       maxPriorityFeePerGas,
-//       type: 2
-//     });
+    // Create a wallet with the provided private key
+    const userWallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const userContract = new ethers.Contract(contractAddress, contractABI, userWallet);
 
-//     console.log("Transaction sent:", txResponse);
+    // Prepare the transaction
+    const tx = await userContract.populateTransaction.vote(candidateId, district);
+    let { maxFeePerGas, maxPriorityFeePerGas } = await getGasDetails();
 
-//     const receipt = await txResponse.wait();
-//     console.log("Transaction receipt:", receipt);
+    // Send the transaction
+    const txResponse = await userWallet.sendTransaction({
+      ...tx,
+      gasLimit: ethers.utils.hexlify(1000000),
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      type: 2
+    });
 
-//     res.status(200).send({ message: 'User voted Successfully',transactionHash: receipt.transactionHash });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     res.status(500).send({ error: error.message });
-//   }
-// };
+    // Wait for the transaction to be mined
+    const receipt = await txResponse.wait();
+    console.log("Transaction receipt:", receipt);
+    res.status(200).send({ message: 'User voted successfully', transactionHash: receipt.transactionHash });
+  } catch (error) {
+    console.error("Error:", error);
+    const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+
+    if (errorMessage.includes("transaction failed")) {
+      res.status(400).send("You have already voted.");
+    } else if (errorMessage.includes("insufficient funds for intrinsic transaction cost")) {
+      res.status(401).send("Insufficient funds");
+    } else {
+      res.status(500).send(errorMessage);
+    }
+  }
+};
+
+
 
 const getCandidateDetails = async (req, res) => {
   try {
     // Call the getCandidate function
 
     const candidates = await contract.getAllVotesOfCandidates();
-     
+
     const convertedCandidates = candidates.map(candidate => ({
       district: candidate.district,
-      candidateName:candidate.candidateName,
+      candidateName: candidate.candidateName,
       candidateId: candidate.candidateId.toString(),
       voteCount: candidate.voteCount.toString(),
     }));
-    console.log(convertedCandidates);
-    res.status(200).send({ message: 'Vote Status fetched Successfully',convertedCandidates});
-    
+
+    res.status(200).send({ message: 'Vote Status fetched Successfully', convertedCandidates });
+
   } catch (error) {
     console.error('Error fetching candidate details:', error);
   }
@@ -285,22 +306,22 @@ const getCandidateDetails = async (req, res) => {
 
 const getAllcandidates = async (req, res) => {
   try {
-      let candidate = await CandidateModel.find();
-      return res.status(200).send({
-          message: "Data Fetch Successful",
-          candidate   
-      });
+    let candidate = await CandidateModel.find();
+    return res.status(200).send({
+      message: "Data Fetch Successful",
+      candidate
+    });
   } catch (error) {
-      console.error('Error in getting all users:', error);
-      return res.status(500).send({
-          message: error.message || "Internal Server Error"
-      });
+    console.error('Error in getting all users:', error);
+    return res.status(500).send({
+      message: error.message || "Internal Server Error"
+    });
   }
 };
 
 export default {
   CandidateName,
-  // candidateId,
+  addVote,
   addCandidate,
   getCandidateDetails,
   getAllcandidates
